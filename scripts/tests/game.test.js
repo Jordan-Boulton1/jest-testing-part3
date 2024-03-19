@@ -4,9 +4,11 @@ const {
   showScore,
   addTurn,
   lightsOn,
-  showTurns
+  showTurns,
+  playerTurn
 } = require("../game");
 
+jest.spyOn(window, "alert").mockImplementation(() => {});
 
 beforeAll(() => {
   let fs = require("fs");
@@ -57,6 +59,12 @@ describe("newGame works correctly", () => {
   test("should display 0 for the element with id of score", () => {
     expect(document.getElementById("score").innerText).toEqual(0);
   });
+  test("expect data-listener to be true", () => {
+    const elements = document.getElementsByClassName("circle");
+    for (let element of elements) {
+      expect(element.getAttribute("data-listener")).toEqual("true");
+    }
+  });
 });
 
 describe("gameplay works correctly", () => {
@@ -84,5 +92,15 @@ describe("gameplay works correctly", () => {
     game.turnNumber = 42;
     showTurns();
     expect(game.turnNumber).toBe(0);
-  })
+  });
+  test("should increment the score if the turn is correct", () => {
+    game.playerMoves.push(game.currentGame[0]);
+    playerTurn();
+    expect(game.score).toBe(1);
+  });
+  test("should call an alert if the move is wrong", () => {
+    game.playerMoves.push("wrong");
+    playerTurn();
+    expect(window.alert).toBeCalledWith("Wrong move!");
+  });
 });
